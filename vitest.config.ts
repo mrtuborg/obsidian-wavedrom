@@ -4,6 +4,13 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json-summary'],
+      reportsDirectory: './coverage',
+      include: ['main.ts', 'src/**/*.ts'],
+      exclude: ['src/__mocks__/**'],
+    },
   },
   resolve: {
     // Put .ts before .js so Vitest resolves main.ts instead of the built main.js bundle

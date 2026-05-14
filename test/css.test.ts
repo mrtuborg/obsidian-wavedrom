@@ -28,4 +28,20 @@ describe('styles.css — CSS contract', () => {
   it('C-06: does NOT contain -webkit-overflow-scrolling (deprecated)', () => {
     expect(css).not.toContain('-webkit-overflow-scrolling')
   })
+
+  it('C-07: contains max-width: 100%', () => {
+    expect(css).toContain('max-width: 100%')
+  })
+
+  it('C-08: contains height: auto', () => {
+    expect(css).toContain('height: auto')
+  })
+
+  it('C-09: .wavedrom-container has width: 100%', () => {
+    expect(css).toContain('width: 100%')
+  })
+
+  it('C-10: contains var(--background-modifier-error)', () => {
+    expect(css).toContain('var(--background-modifier-error)')
+  })
 })

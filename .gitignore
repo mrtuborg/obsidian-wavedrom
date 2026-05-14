@@ -11,4 +11,4 @@ main.js
 *.js.map
 
 # obsidian
-data.json
+data.jsoncoverage/

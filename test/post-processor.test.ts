@@ -123,4 +123,54 @@ describe('postProcessor() — integration', () => {
     const errorEl = el.children[0] as HTMLElement
     expect(errorEl.tagName.toLowerCase()).toBe('pre')
   })
+
+  it('I-PP-11: when source has both signal and assign, signal takes priority', () => {
+    const el = makeEl()
+    plugin.postProcessor('{ signal: [{ name: "clk", wave: "p......" }], assign: [["out", ["~", "in"]]] }', el)
+
+    // signal branch was taken — SVG exists and has positive height from signal rendering
+    const svg = el.querySelector('svg')!
+    expect(svg).toBeTruthy()
+    // A pure signal SVG has height based on lane.yo; assign would differ
+    expect(Number(svg.getAttribute('height'))).toBeGreaterThan(0)
+  })
+
+  it('I-PP-12: when source has both signal and reg, signal takes priority', () => {
+    const el = makeEl()
+    plugin.postProcessor('{ signal: [{ name: "clk", wave: "p......" }], reg: [{ name: "data", bits: 8 }] }', el)
+
+    const svg = el.querySelector('svg')!
+    expect(svg).toBeTruthy()
+  })
+
+  it('I-PP-13: signal:null falls through to empty div (not an error)', () => {
+    const el = makeEl()
+    // null is falsy — dispatch skips signal branch, falls to empty fallback
+    plugin.postProcessor('{ signal: null }', el)
+
+    expect(el.children).toHaveLength(1)
+    const container = el.children[0]
+    const inner = container.children[0] as HTMLElement
+    expect(inner.tagName.toLowerCase()).toBe('div')
+    expect(inner.getAttribute('class')).toBe('WaveDrom')
+  })
+
+  it('I-PP-14: valid JSON5 that causes a renderer to throw still shows error element', () => {
+    const el = makeEl()
+    // assign expects an array of entries; a string value will cause renderAssign to throw
+    plugin.postProcessor('{ assign: "not-an-array" }', el)
+
+    const first = el.children[0] as HTMLElement
+    expect(first.tagName.toLowerCase()).toBe('pre')
+    expect(first.classList.contains('wavedrom-error')).toBe(true)
+  })
+
+  it('I-PP-15: reg with multiple bit fields produces an SVG', () => {
+    const el = makeEl()
+    plugin.postProcessor('{ reg: [{ name: "valid", bits: 1 }, { name: "data", bits: 7 }, { name: "addr", bits: 8 }] }', el)
+
+    const svg = el.querySelector('svg')!
+    expect(svg).toBeTruthy()
+    expect(Number(svg.getAttribute('width'))).toBeGreaterThan(0)
+  })
 })

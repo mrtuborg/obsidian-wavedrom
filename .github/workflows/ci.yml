@@ -21,8 +21,27 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Run tests
-        run: npm test
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          node -e "
+          const fs = require('fs');
+          const s = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf-8')).total;
+          const rows = ['statements','branches','functions','lines']
+            .map(k => \`| \${k} | \${s[k].pct}% | \${s[k].covered} / \${s[k].total} |\`)
+            .join('\n');
+          const md = [
+            '## 🧪 Test Coverage',
+            '',
+            '| Metric | % | Covered / Total |',
+            '|--------|---|-----------------|',
+            rows,
+          ].join('\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
+          "
 
       - name: Type-check & build
         run: npm run build

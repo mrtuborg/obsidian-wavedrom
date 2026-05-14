@@ -81,4 +81,51 @@ describe('renderSignalFresh()', () => {
     const result = renderSignalFresh(1, source, waveskin)
     expect(Array.isArray(result)).toBe(true)
   })
+
+  it('U-RS-11: index=0 exercises laneParamsFromSkin without throwing', () => {
+    // laneParamsFromSkin only runs when index === 0; all other tests skip it.
+    // Verifies the skin-socket read path is intact.
+    expect(() => renderSignalFresh(0, SIMPLE_SOURCE, waveskin)).not.toThrow()
+    const result = renderSignalFresh(0, SIMPLE_SOURCE, waveskin)
+    expect(result[0]).toBe('svg')
+    expect(Number(result[1].width)).toBeGreaterThan(0)
+  })
+
+  it('U-RS-11b: index=0 with config.skin matching a skin key reads that skin', () => {
+    // Covers the branch: if (source?.config?.skin && waveSkin[source.config.skin])
+    const source = {
+      signal: [{ name: 'clk', wave: 'p......' }],
+      config: { skin: 'default' },
+    }
+    expect(() => renderSignalFresh(0, source, waveskin)).not.toThrow()
+    const result = renderSignalFresh(0, source, waveskin)
+    expect(result[0]).toBe('svg')
+  })
+
+  it('U-RS-12: notFirstSignal=true produces an svg root (alternate template path)', () => {
+    // When notFirstSignal is true, insertSVGTemplate uses a minimal svg stub
+    // instead of the full skin template.
+    const result = renderSignalFresh(1, SIMPLE_SOURCE, waveskin, true)
+    expect(result[0]).toBe('svg')
+    expect(Array.isArray(result)).toBe(true)
+  })
+
+  it('U-RS-13: renders a source with signal groups without throwing', () => {
+    const source = {
+      signal: [
+        ['group', { name: 'clk', wave: 'p......' }, { name: 'data', wave: 'x.==.=x', data: ['a', 'b', 'c'] }],
+        { name: 'en', wave: '0.1..0.' },
+      ],
+    }
+    expect(() => renderSignalFresh(1, source, waveskin)).not.toThrow()
+    const result = renderSignalFresh(1, source, waveskin)
+    expect(result[0]).toBe('svg')
+  })
+
+  it('U-RS-14: renders an empty signal array without throwing', () => {
+    const source = { signal: [] }
+    expect(() => renderSignalFresh(1, source, waveskin)).not.toThrow()
+    const result = renderSignalFresh(1, source, waveskin)
+    expect(Array.isArray(result)).toBe(true)
+  })
 })
