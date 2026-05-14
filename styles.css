@@ -4,8 +4,10 @@
   overflow-x: auto;
 }
 
-/* Allow SVG to scale down within the viewport while preserving aspect ratio */
+/* Allow SVG to scale down within the viewport while preserving aspect ratio.
+   display:block removes the inline baseline gap that WebKit/Blink add below SVGs. */
 .wavedrom-container svg {
+  display: block;
   max-width: 100%;
   height: auto;
 }

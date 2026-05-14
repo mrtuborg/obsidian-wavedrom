@@ -29,8 +29,12 @@ import insertSVGTemplate from 'wavedrom/lib/insert-svg-template';
 import { createLane } from './lane-factory';
 
 /**
- * Reads skin parameters into the lane object.
- * Only applied when index === 0 (matches original behaviour).
+ * Reads skin socket dimensions into the lane object.
+ * The upstream WaveDrom guard `if (index !== 0) return` means this only fires
+ * when index is exactly 0. Since we always pass a random 12-digit ID, it
+ * effectively never runs — the lane factory defaults (xs=20, ys=20, xlabel=6,
+ * ym=15) already match the skin socket defaults. Behaviour is identical to the
+ * original plugin. Preserved as-is for parity with upstream render-signal.js.
  */
 function laneParamsFromSkin(
     index: number,

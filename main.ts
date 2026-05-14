@@ -16,7 +16,7 @@ const nanoidNum = () => parseInt(nanoid());
 
 export default class ObsidianWaveDrom extends Plugin {
 
-  async onload() {
+  onload() {
     this.registerMarkdownCodeBlockProcessor(
       'wavedrom',
       (src, el, ctx) => this.postProcessor(src, el, ctx)
@@ -50,9 +50,12 @@ export default class ObsidianWaveDrom extends Plugin {
       // Apply WaveDrom class and SVG namespace attributes before serialising.
       // create-element.js normally does this step; we replicate it here so we
       // can serialise to a string and avoid DOMParser cross-document issues.
-      onmlTree[1].class           = 'WaveDrom';
-      onmlTree[1].xmlns           = 'http://www.w3.org/2000/svg';
-      onmlTree[1]['xmlns:xlink']  = 'http://www.w3.org/1999/xlink';
+      // Guard: skip SVG namespace on the empty-div fallback (no signal/assign/reg).
+      onmlTree[1].class = 'WaveDrom';
+      if (onmlTree[0] !== 'div') {
+        onmlTree[1].xmlns          = 'http://www.w3.org/2000/svg';
+        onmlTree[1]['xmlns:xlink'] = 'http://www.w3.org/1999/xlink';
+      }
 
       const svgString = onmlStringify(onmlTree);
 
