@@ -1,1 +1,22 @@
-/* Sets all the text color to red! */
+/* WaveDrom container: enables horizontal scroll for wide diagrams on mobile */
+.wavedrom-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Allow SVG to scale down within the viewport while preserving aspect ratio */
+.wavedrom-container svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Error message styling — uses Obsidian theme variables for consistency */
+.wavedrom-error {
+  color: var(--text-error);
+  background: var(--background-modifier-error);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.85em;
+  white-space: pre-wrap;
+  word-break: break-word;
+}

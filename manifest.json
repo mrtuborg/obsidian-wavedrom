@@ -4,5 +4,5 @@
   "version": "0.1.1",
   "description": "This is very rough and quick integration of WaveDrom into obsidian",
   "author": "Alex Stewart",
-  "isDesktopOnly": true
+  "isDesktopOnly": false
 }
