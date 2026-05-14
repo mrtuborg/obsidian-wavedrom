@@ -22,25 +22,63 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Run tests with coverage
-        run: npm run test:coverage
+        run: |
+          npx vitest run \
+            --reporter=verbose \
+            --reporter=github-actions \
+            --reporter=json --outputFile=test-results.json \
+            --coverage
 
-      - name: Coverage summary
+      - name: Write job summary
         if: always()
         run: |
           node -e "
           const fs = require('fs');
-          const s = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf-8')).total;
-          const rows = ['statements','branches','functions','lines']
-            .map(k => \`| \${k} | \${s[k].pct}% | \${s[k].covered} / \${s[k].total} |\`)
-            .join('\n');
-          const md = [
-            '## 🧪 Test Coverage',
+
+          // ── Test results ────────────────────────────────────────────
+          const r = JSON.parse(fs.readFileSync('test-results.json', 'utf-8'));
+          const icon = r.numFailedTests === 0 ? '✅' : '❌';
+          const headline = \`\${icon} \${r.numPassedTests} passed\` +
+            (r.numFailedTests ? \` · ❌ \${r.numFailedTests} failed\` : '') +
+            \` · \${r.numTotalTestSuites} suites · \${r.numTotalTests} tests\`;
+
+          const lines = [
+            '## 🧪 Test Results',
             '',
-            '| Metric | % | Covered / Total |',
-            '|--------|---|-----------------|',
-            rows,
-          ].join('\n');
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md + '\n');
+            headline,
+          ];
+
+          if (r.numFailedTests > 0) {
+            lines.push('', '### Failed tests');
+            for (const suite of r.testResults) {
+              const failed = (suite.assertionResults || []).filter(t => t.status === 'failed');
+              if (failed.length === 0) continue;
+              const rel = suite.name.replace(process.cwd() + '/', '');
+              lines.push('', \`**\${rel}**\`);
+              for (const t of failed) {
+                lines.push(\`- \${t.ancestorTitles.concat(t.title).join(' > ')}\`);
+                if (t.failureMessages && t.failureMessages[0]) {
+                  lines.push(\`  \\\`\\\`\\\`\`, t.failureMessages[0].split('\n')[0], \`  \\\`\\\`\\\`\`);
+                }
+              }
+            }
+          }
+
+          // ── Coverage ─────────────────────────────────────────────────
+          try {
+            const s = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf-8')).total;
+            const rows = ['statements','branches','functions','lines']
+              .map(k => \`| \${k} | \${s[k].pct}% | \${s[k].covered} / \${s[k].total} |\`)
+              .join('\n');
+            lines.push(
+              '', '## 📊 Coverage', '',
+              '| Metric | % | Covered / Total |',
+              '|--------|---|-----------------|',
+              rows
+            );
+          } catch (_) { /* coverage file absent if tests failed early */ }
+
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join('\n') + '\n');
           "
 
       - name: Type-check & build
