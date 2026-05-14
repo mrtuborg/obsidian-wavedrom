@@ -88,10 +88,18 @@ export function renderSignalFresh(
 
     lane.xg = Math.ceil((xmax - lane.tgo) / lane.xs) * lane.xs;
 
-    return insertSVGTemplate(
+    const onmlTree = insertSVGTemplate(
         index, source, lane, waveSkin, content,
         renderLanes(index, content, waveLanes, ret, source, lane),
         waveGroups,
         notFirstSignal
     );
+
+    // insertSVGTemplate returns the shared skin array and mutates skin[1] in-place.
+    // Shallow-clone both the array and its attribute node so each render is independent.
+    const result = onmlTree.slice();
+    result[1] = Object.assign({}, onmlTree[1]);
+
+    return result;
 }
+

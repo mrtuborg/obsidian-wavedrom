@@ -1,8 +1,8 @@
 {
   "id": "obsidian-wavedrom",
   "name": "WaveDrom",
-  "version": "0.1.1",
-  "description": "This is very rough and quick integration of WaveDrom into obsidian",
+  "version": "0.2.0",
+  "description": "Renders WaveDrom timing, register, and logic diagrams from wavedrom fenced code blocks. Supports desktop and mobile (iOS/Android).",
   "author": "Alex Stewart",
   "isDesktopOnly": false
 }
