@@ -173,4 +173,45 @@ describe('postProcessor() — integration', () => {
     expect(svg).toBeTruthy()
     expect(Number(svg.getAttribute('width'))).toBeGreaterThan(0)
   })
+
+  it('I-PP-16: regression — complex 4-lane reg map with hflip/compact/label/type (reported broken in v0.1.1)', () => {
+    const el = makeEl()
+    const src = `{"reg": [
+      {"bits": 2, "name": "op=00",      "type": 8},
+      {"bits": 3, "name": "rd",         "type": 2},
+      {"bits": 2, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "rs1",        "type": 4},
+      {"bits": 3, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "funct3=010", "type": 8},
+      {"bits": 2, "name": "op=11",      "type": 8},
+      {"bits": 5, "name": "rd",         "type": 2},
+      {"bits": 1, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "rs1",        "type": 4},
+      {"bits": 3, "name": "imm",        "type": 3},
+      {"bits": 2, "name": "01",         "type": 8},
+      {"bits": 2, "name": "op=00",      "type": 8},
+      {"bits": 3, "name": "rs2",        "type": 4},
+      {"bits": 2, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "rs1",        "type": 4},
+      {"bits": 3, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "funct3=110", "type": 8},
+      {"bits": 2, "name": "op=11",      "type": 8},
+      {"bits": 5, "name": "rs2=0",      "type": 4},
+      {"bits": 2, "name": "imm",        "type": 3},
+      {"bits": 3, "name": "rs1",        "type": 4},
+      {"bits": 3, "name": "imm",        "type": 3},
+      {"bits": 1, "name": "1",          "type": 8}
+    ],
+    "config": {"hflip": true, "bits": 64, "lanes": 4, "compact": true,
+               "label": {"right": ["LW","LV","SW","SV1"]}}}`
+
+    expect(() => plugin.postProcessor(src, el)).not.toThrow()
+
+    const svg = el.querySelector('svg')!
+    expect(svg).toBeTruthy()
+    expect(svg.getAttribute('class')).toBe('WaveDrom')
+    // 4 lanes × ~37px each + padding = well above 100px
+    expect(Number(svg.getAttribute('height'))).toBeGreaterThan(100)
+    expect(Number(svg.getAttribute('width'))).toBeGreaterThan(0)
+  })
 })

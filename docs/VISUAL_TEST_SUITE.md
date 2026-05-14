@@ -197,3 +197,49 @@ On a narrow viewport (or mobile), this diagram should be horizontally scrollable
   { name: "data", wave: "x.============================.=======.x.", data: ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","D10","D11","D12","D13","D14","D15","D16","D17","D18","D19","D20","D21","D22","D23","D24","D25","D26","D27","D28","D29","D30"] }
 ]}
 ```
+
+---
+
+## 15. Regression — complex reg map (reported broken in v0.1.1 after Obsidian v1.0.0 upgrade)
+
+4-lane register map with `hflip`, `compact`, `label`, and field `type` colours.
+Must render 4 rows labelled LW / LV / SW / SV1 with correct bit-field colouring.
+
+```wavedrom
+{"reg": [
+  {"bits": 2, "name": "op=00",      "type": 8},
+  {"bits": 3, "name": "rd",         "type": 2},
+  {"bits": 2, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "rs1",        "type": 4},
+  {"bits": 3, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "funct3=010", "type": 8},
+
+  {"bits": 2, "name": "op=11",      "type": 8},
+  {"bits": 5, "name": "rd",         "type": 2},
+  {"bits": 1, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "rs1",        "type": 4},
+  {"bits": 3, "name": "imm",        "type": 3},
+  {"bits": 2, "name": "01",         "type": 8},
+
+  {"bits": 2, "name": "op=00",      "type": 8},
+  {"bits": 3, "name": "rs2",        "type": 4},
+  {"bits": 2, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "rs1",        "type": 4},
+  {"bits": 3, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "funct3=110", "type": 8},
+
+  {"bits": 2, "name": "op=11",      "type": 8},
+  {"bits": 5, "name": "rs2=0",      "type": 4},
+  {"bits": 2, "name": "imm",        "type": 3},
+  {"bits": 3, "name": "rs1",        "type": 4},
+  {"bits": 3, "name": "imm",        "type": 3},
+  {"bits": 1, "name": "1",          "type": 8}
+],
+"config": {
+  "hflip": true,
+  "bits": 64,
+  "lanes": 4,
+  "compact": true,
+  "label": {"right": ["LW", "LV", "SW", "SV1"]}
+}}
+```
